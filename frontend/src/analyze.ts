@@ -46,7 +46,7 @@ const ANALYSIS_SCHEMA = {
   additionalProperties: false,
 }
 
-function buildPrompt(transcript: string, me: string) {
+export function buildPrompt(transcript: string, me: string) {
   const lines = [
     '아래는 카카오톡 그룹 채팅 대화 기록입니다. 각 줄은 "[날짜 시간] 보낸 사람: 메시지" 형식입니다.',
     '대화를 분석해서 전체 요약, 주요 논의/결정 사항, 그리고 후속으로 해야 할 액션 아이템을 한국어로 정리해 주세요.',

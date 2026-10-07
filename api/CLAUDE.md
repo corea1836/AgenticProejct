@@ -7,6 +7,7 @@
 `analyzeChat(transcript, { apiKey, model, me })`가 `buildPrompt`로 프롬프트를 만들고, Structured Outputs(`response_format: json_schema`, `strict: true`)로 호출해 `Analysis` 형태의 JSON을 돌려준다.
 
 - **mock 모드**: `npm run dev:mock`(`vite --mode mock`)으로 띄우면 `App.tsx`가 `import.meta.env.MODE === 'mock'`을 보고 `analyzeChat` 대신 `mockAnalyzeChat(transcript, { me })`를 부른다. API를 호출하지 않고 transcript의 참여자와 날짜로 예시 결과를 만든다. 담당자·기한이 있는 항목과 없는(null) 항목을 모두 넣어 화면 분기를 확인할 수 있게 한다.
+- **CLI**: `frontend/scripts/chat-cli.ts`의 `--prompt`는 `buildPrompt`를, `--live`는 `analyzeChat`을 그대로 쓴다. `--live`는 루트 `.env`를 `process.loadEnvFile`로 읽고, 에러 메시지에 섞인 `sk-…` 문자열은 가려서 출력한다.
 
 ## 프롬프트와 입력 형식
 

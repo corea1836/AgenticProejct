@@ -10,6 +10,7 @@
     "lint": "oxlint",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
+    "chat": "node scripts/chat-cli.ts",
     "preview": "vite preview"
   },
   "dependencies": {
