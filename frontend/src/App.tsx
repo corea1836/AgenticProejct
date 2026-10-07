@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent } from 'react'
-import { analyzeChat, type Analysis } from './analyze'
+import { analyzeChat, mockAnalyzeChat, type Analysis } from './analyze'
 import {
   filterRecentDays,
   getParticipants,
@@ -11,6 +11,8 @@ import {
 const API_KEY_STORAGE = 'openai-api-key'
 const ENV_API_KEY = import.meta.env.OPENAI_API_KEY
 const MODEL = import.meta.env.OPENAI_MODEL
+// npm run dev:mock: API를 호출하지 않고 예시 결과를 보여준다.
+const MOCK = import.meta.env.MODE === 'mock'
 const PREVIEW_ROWS = 5
 
 const PRIORITY_LABEL = { high: '높음', medium: '보통', low: '낮음' } as const
@@ -74,12 +76,16 @@ export default function App() {
   }
 
   async function handleAnalyze() {
-    if (!selected.length || !apiKey) return
+    if (!selected.length || !(MOCK || apiKey)) return
     setLoading(true)
     setError('')
     setResult(null)
     try {
-      setResult(await analyzeChat(toTranscript(selected), { apiKey: apiKey.trim(), model: MODEL, me }))
+      const transcript = toTranscript(selected)
+      const analysis = MOCK
+        ? await mockAnalyzeChat(transcript, { me })
+        : await analyzeChat(transcript, { apiKey: apiKey.trim(), model: MODEL, me })
+      setResult(analysis)
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {
@@ -95,7 +101,9 @@ export default function App() {
       </header>
 
       <section className="card">
-        {ENV_API_KEY ? (
+        {MOCK ? (
+          <p className="muted">mock 모드: 실제 API를 호출하지 않고 예시 결과를 보여줍니다.</p>
+        ) : ENV_API_KEY ? (
           <p className="muted">API 키: 루트 .env의 OPENAI_API_KEY 사용 중 · 모델 {MODEL}</p>
         ) : (
           <label className="field">
@@ -177,7 +185,7 @@ export default function App() {
           </>
         )}
 
-        <button onClick={handleAnalyze} disabled={!selected.length || !apiKey || loading}>
+        <button onClick={handleAnalyze} disabled={!selected.length || !(MOCK || apiKey) || loading}>
           {loading ? '분석 중...' : '분석하기'}
         </button>
 

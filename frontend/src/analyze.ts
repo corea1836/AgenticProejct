@@ -87,3 +87,25 @@ export async function analyzeChat(transcript: string, { apiKey, model, me }: Ana
   if (!message?.content) throw new Error(message?.refusal ?? '분석 결과를 받지 못했습니다.')
   return JSON.parse(message.content) as Analysis
 }
+
+// API 없이 화면을 확인하기 위한 예시 결과 (npm run dev:mock). 담당자·기한이 있는 항목과 없는 항목을 모두 만든다.
+export async function mockAnalyzeChat(transcript: string, { me }: Pick<AnalyzeOptions, 'me'>): Promise<Analysis> {
+  const lines = transcript
+    .split('\n')
+    .map((line) => line.match(/^\[(\d{4}-\d{2}-\d{2}) [^\]]*\] ([^:]+): /))
+    .filter((m) => m !== null)
+  const users = [...new Set(lines.map((m) => m[2]))]
+  const first = lines.at(0)?.[1] ?? null
+  const last = lines.at(-1)?.[1] ?? null
+  const period = first && last ? `${first} ~ ${last}` : '기간 없음'
+
+  return {
+    summary: `(mock) ${period} · 메시지 ${lines.length}개 · 실제 API는 호출하지 않았습니다.`,
+    key_points: [`참여자: ${users.join(', ') || '없음'}`, `기간: ${period}`, 'mock 모드에서 만든 예시 결과입니다.'],
+    action_items: [
+      { task: '(mock) 담당자와 기한이 있는 할 일', owner: me || users[0] || null, due: last, priority: 'high' },
+      { task: '(mock) 담당자와 기한이 없는 할 일', owner: null, due: null, priority: 'medium' },
+      { task: '(mock) 우선순위가 낮은 할 일', owner: users[1] ?? null, due: null, priority: 'low' },
+    ],
+  }
+}

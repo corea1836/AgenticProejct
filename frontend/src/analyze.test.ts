@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { analyzeChat, type ActionItem, type Analysis } from './analyze'
+import { analyzeChat, mockAnalyzeChat, type ActionItem, type Analysis } from './analyze'
 
 type JsonSchema = {
   type?: string | string[]
@@ -148,5 +148,52 @@ describe('analyzeChat 응답 처리', () => {
   ])('%s 결과를 받지 못했다는 에러를 던진다', async (_, body) => {
     mockFetch(body)
     await expect(analyzeChat(TRANSCRIPT, OPTIONS)).rejects.toThrow('분석 결과를 받지 못했습니다.')
+  })
+})
+
+describe('mockAnalyzeChat', () => {
+  const MOCK_TRANSCRIPT = [
+    '[2026-10-05 21:40] 김민수: 배포는 금요일로 하죠.',
+    '[2026-10-06 09:11] 박준호: 프론트 작업은 목요일까지 가능합니다.',
+    TRANSCRIPT,
+  ].join('\n')
+
+  it('API를 호출하지 않는다', async () => {
+    const fetchMock = mockSuccess()
+    await mockAnalyzeChat(MOCK_TRANSCRIPT, { me: '' })
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['대화 기록이 있으면', MOCK_TRANSCRIPT],
+    ['대화 기록이 비어 있어도', ''],
+  ])('%s Analysis 형태를 지킨다', async (_, transcript) => {
+    const result = await mockAnalyzeChat(transcript, { me: '' })
+    expect(Object.keys(result).sort()).toEqual(ANALYSIS_KEYS.sort())
+    expect(result.action_items.length).toBeGreaterThan(0)
+    for (const item of result.action_items) {
+      expect(Object.keys(item).sort()).toEqual(ACTION_ITEM_KEYS.sort())
+      expect(PRIORITIES).toContain(item.priority)
+    }
+  })
+
+  it('담당자는 me가 있으면 me, 없으면 첫 참여자이고 기한은 마지막 메시지 날짜다', async () => {
+    const [withMe] = (await mockAnalyzeChat(MOCK_TRANSCRIPT, { me: '최서연' })).action_items
+    const [withoutMe] = (await mockAnalyzeChat(MOCK_TRANSCRIPT, { me: '' })).action_items
+    expect(withMe).toMatchObject({ owner: '최서연', due: '2026-10-06' })
+    expect(withoutMe.owner).toBe('김민수')
+  })
+
+  it('담당자와 기한이 없는 항목도 넣어 화면의 null 처리를 확인할 수 있게 한다', async () => {
+    const { action_items } = await mockAnalyzeChat(MOCK_TRANSCRIPT, { me: '' })
+    expect(action_items).toContainEqual(expect.objectContaining({ owner: null, due: null }))
+  })
+})
+
+describe('환경 변수', () => {
+  it('테스트에는 루트 .env의 API 키가 주입되지 않는다', () => {
+    // Vitest도 vite.config.ts를 command 'serve'로 읽는다. 키가 들어오면 fetch mock을 빠뜨린 테스트가 실제 API를 호출한다.
+    // 실패해도 키 값이 출력되지 않도록 길이만 비교한다.
+    expect(import.meta.env.OPENAI_API_KEY.length).toBe(0)
   })
 })

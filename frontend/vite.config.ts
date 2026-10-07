@@ -5,8 +5,9 @@ import { defineConfig, loadEnv } from 'vite'
 // https://vite.dev/config/
 export default defineConfig(({ command, mode }) => {
   // 루트 .env의 OPENAI_* 값을 읽는다. 키는 개발 서버에서만 주입한다. (빌드 결과물에는 키가 들어가지 않음)
+  // Vitest도 command를 'serve'로 넘기므로(mode 'test') 모드까지 확인한다. mock 모드에도 넣지 않는다.
   const env = loadEnv(mode, '..', 'OPENAI_')
-  const apiKey = command === 'serve' ? (env.OPENAI_API_KEY ?? '') : ''
+  const apiKey = command === 'serve' && mode === 'development' ? (env.OPENAI_API_KEY ?? '') : ''
 
   return {
     plugins: [react()],

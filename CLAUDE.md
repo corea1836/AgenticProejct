@@ -13,6 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 npm install
 npm run dev       # 개발 서버 (루트 .env의 API 키가 주입되는 유일한 모드)
+npm run dev:mock  # API를 호출하지 않고 예시 결과를 보여주는 개발 서버 (키·크레딧 불필요)
 npm run build     # tsc -b(타입 체크) + vite build
 npm run lint      # oxlint
 npm test          # Vitest 전체 실행
@@ -22,7 +23,7 @@ npm run preview   # 빌드 결과물 미리보기
 
 - 타입 체크만 하려면 `npx tsc -b`.
 - 파일 하나만 테스트하려면 `npx vitest run src/chat.test.ts`, 테스트 이름으로 거르려면 `-t '<이름>'`.
-- 테스트는 `src/*.test.ts`에 소스와 나란히 둔다. 지금은 `chat.ts`와 `analyze.ts`만 테스트하고, `App.tsx`는 `frontend/public/sample-chat.csv`로 직접 확인한다.
+- 테스트는 `src/*.test.ts`에 소스와 나란히 둔다. 지금은 `chat.ts`와 `analyze.ts`만 테스트하고, `App.tsx`는 `npm run dev:mock`으로 띄워 `frontend/public/sample-chat.csv`로 직접 확인한다.
 - TDD 가드: `frontend/src`의 `.ts`/`.tsx` 파일은 같은 폴더에 `<이름>.test.ts`가 없으면 PreToolUse 훅(`.claude/hooks/tdd-guard.sh`)이 Edit/Write를 막는다. 새 모듈은 테스트 파일부터 만든다. `App.tsx`, `main.tsx`, `*.d.ts`는 예외.
 
 ## 아키텍처
