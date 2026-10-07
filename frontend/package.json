@@ -10,6 +10,7 @@
     "lint": "oxlint",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
+    "check": "tsc -b && oxlint && vitest run",
     "chat": "node scripts/chat-cli.ts",
     "preview": "vite preview"
   },

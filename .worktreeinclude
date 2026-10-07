@@ -1,0 +1,2 @@
+# claude -w로 만든 worktree에 복사할 gitignore 대상 파일
+.env
