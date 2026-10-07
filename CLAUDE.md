@@ -15,11 +15,14 @@ npm install
 npm run dev       # 개발 서버 (루트 .env의 API 키가 주입되는 유일한 모드)
 npm run build     # tsc -b(타입 체크) + vite build
 npm run lint      # oxlint
+npm test          # Vitest 전체 실행
+npm run coverage  # 커버리지 리포트 (frontend/coverage/)
 npm run preview   # 빌드 결과물 미리보기
 ```
 
 - 타입 체크만 하려면 `npx tsc -b`.
-- 테스트 프레임워크는 아직 설정되어 있지 않다. 수동 확인용 샘플 데이터는 `frontend/public/sample-chat.csv`.
+- 파일 하나만 테스트하려면 `npx vitest run src/chat.test.ts`, 테스트 이름으로 거르려면 `-t '<이름>'`.
+- 테스트는 `src/*.test.ts`에 소스와 나란히 둔다. 지금은 `chat.ts`와 `analyze.ts`만 테스트하고, `App.tsx`는 `frontend/public/sample-chat.csv`로 직접 확인한다.
 
 ## 아키텍처
 

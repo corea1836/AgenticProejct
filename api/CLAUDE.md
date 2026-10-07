@@ -14,7 +14,7 @@
 
 ## 분석 결과 스키마
 
-`Analysis`, `ActionItem` 타입과 `ANALYSIS_SCHEMA`는 손으로 맞춰야 한다. strict 모드 규칙상 모든 필드가 `required`에 있어야 하고 `additionalProperties: false`여야 하며, 값이 없을 수 있는 필드는 `type: ['string', 'null']`로 표현한다. 필드를 바꾸면 결과를 그리는 `frontend/src/App.tsx`도 함께 수정한다.
+`Analysis`, `ActionItem` 타입과 `ANALYSIS_SCHEMA`는 손으로 맞춰야 한다. strict 모드 규칙상 모든 필드가 `required`에 있어야 하고 `additionalProperties: false`여야 하며, 값이 없을 수 있는 필드는 `type: ['string', 'null']`로 표현한다. 필드를 바꾸면 결과를 그리는 `frontend/src/App.tsx`도 함께 수정한다. `frontend/src/analyze.test.ts`가 strict 규칙과, 타입과 스키마의 필드 일치를 검사한다.
 
 ## 환경 변수와 API 키
 
