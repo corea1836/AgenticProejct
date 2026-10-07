@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from 'react'
+import { useState, type ChangeEvent, type DragEvent } from 'react'
 import { analyzeChat, mockAnalyzeChat, type Analysis } from './analyze'
 import {
   filterRecentDays,
@@ -7,6 +7,7 @@ import {
   toTranscript,
   type Message,
 } from './chat'
+import { findCsvFile } from './upload'
 
 const API_KEY_STORAGE = 'openai-api-key'
 const ENV_API_KEY = import.meta.env.OPENAI_API_KEY
@@ -49,6 +50,7 @@ export default function App() {
   const [result, setResult] = useState<Analysis | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [dragging, setDragging] = useState(false)
 
   const selected = filterRecentDays(messages, PERIODS[periodIndex].days)
   const participants = getParticipants(messages)
@@ -58,9 +60,13 @@ export default function App() {
     saveApiKey(e.target.value)
   }
 
-  async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+  async function loadFile(files: ArrayLike<File>) {
+    if (files.length === 0) return
+    const file = findCsvFile(files)
+    if (!file) {
+      setError('CSV 파일만 올릴 수 있습니다.')
+      return
+    }
 
     setFileName(file.name)
     setResult(null)
@@ -73,6 +79,29 @@ export default function App() {
       setMessages([])
       setError(err instanceof Error ? err.message : String(err))
     }
+  }
+
+  function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+    void loadFile(e.target.files ?? [])
+  }
+
+  function handleDragOver(e: DragEvent<HTMLLabelElement>) {
+    // 기본 동작을 막아야 drop 이벤트가 발생하고, 브라우저가 파일을 새 탭으로 열지 않는다.
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'copy'
+    setDragging(true)
+  }
+
+  function handleDragLeave(e: DragEvent<HTMLLabelElement>) {
+    // 영역 안의 자식 요소로 옮겨갈 때도 dragleave가 발생하므로 완전히 벗어났을 때만 끈다.
+    if (e.currentTarget.contains(e.relatedTarget as Node | null)) return
+    setDragging(false)
+  }
+
+  function handleDrop(e: DragEvent<HTMLLabelElement>) {
+    e.preventDefault()
+    setDragging(false)
+    void loadFile(e.dataTransfer.files)
   }
 
   async function handleAnalyze() {
@@ -120,9 +149,24 @@ export default function App() {
           </label>
         )}
 
-        <label className="field">
+        <div className="field">
           <span>카카오톡 대화 CSV</span>
-          <input type="file" accept=".csv,text/csv" onChange={handleFileChange} />
+          <label
+            className={dragging ? 'dropzone dragging' : 'dropzone'}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <input type="file" accept=".csv,text/csv" className="visually-hidden" onChange={handleFileChange} />
+            {fileName && <strong>{fileName}</strong>}
+            <small className="muted">
+              {dragging
+                ? '여기에 놓으세요'
+                : fileName
+                  ? '다른 파일을 끌어다 놓거나 클릭해서 바꿀 수 있습니다'
+                  : 'CSV 파일을 끌어다 놓거나 클릭해서 선택하세요'}
+            </small>
+          </label>
           <small className="muted">
             카카오톡 PC 버전 › 채팅방 › 대화 내보내기 (예시:{' '}
             <a href="/sample-chat.csv" download>
@@ -130,7 +174,7 @@ export default function App() {
             </a>
             )
           </small>
-        </label>
+        </div>
 
         {messages.length > 0 && (
           <>

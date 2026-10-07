@@ -25,7 +25,7 @@ npm run chat -- <csv> [--days 30|all] [--me 이름] [--prompt] [--live]  # CSV �
 
 - 타입 체크만 하려면 `npx tsc -b`.
 - 파일 하나만 테스트하려면 `npx vitest run src/chat.test.ts`, 테스트 이름으로 거르려면 `-t '<이름>'`.
-- 테스트는 `src/*.test.ts`에 소스와 나란히 둔다. 지금은 `chat.ts`와 `analyze.ts`만 테스트하고, `App.tsx`는 `npm run dev:mock`으로 띄워 `frontend/public/sample-chat.csv`로 직접 확인한다.
+- 테스트는 `src/*.test.ts`에 소스와 나란히 둔다. 지금은 `chat.ts`, `analyze.ts`, `upload.ts`만 테스트하고, `App.tsx`는 `npm run dev:mock`으로 띄워 `frontend/public/sample-chat.csv`로 직접 확인한다.
 - TDD 가드: `frontend/src`의 `.ts`/`.tsx` 파일은 같은 폴더에 `<이름>.test.ts`가 없으면 PreToolUse 훅(`.claude/hooks/tdd-guard.sh`)이 Edit/Write를 막는다. 새 모듈은 테스트 파일부터 만든다. `App.tsx`, `main.tsx`, `*.d.ts`는 예외.
 - `frontend/scripts/chat-cli.ts`는 `src/chat.ts`와 `src/analyze.ts`의 함수를 그대로 import해 Node로 바로 실행한다. CSV를 확인하거나 프롬프트를 볼 때 일회성 스크립트를 새로 짜지 말고 이걸 쓴다. 타입 체크는 `tsconfig.scripts.json`(DOM lib + Node 타입)이 맡는다.
 - `npm run chat -- ... --live`는 비용이 들고 대화 내용을 OpenAI로 보내므로 사용자가 요청할 때만 실행한다.

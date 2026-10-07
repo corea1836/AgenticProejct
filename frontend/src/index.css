@@ -94,6 +94,41 @@ a {
   color: var(--accent);
 }
 
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 24px 16px;
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+}
+
+.dropzone:hover,
+.dropzone:focus-within,
+.dropzone.dragging {
+  border-color: var(--accent);
+}
+
+.dropzone.dragging {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+/* 키보드 포커스는 받도록 display: none 대신 화면에서만 숨긴다. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 button {
   width: 100%;
   padding: 12px;
